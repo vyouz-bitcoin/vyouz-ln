@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -6,8 +6,11 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { configValidationSchema } from './config.schema';
 
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: [`stage.${process.env.STAGE}.env`],
       validationSchema: configValidationSchema,

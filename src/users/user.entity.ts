@@ -14,3 +14,9 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 }
+
+//country
+//email
+//firstname
+//lastname
+//type : individual / organization
