@@ -8,8 +8,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthUserInterceptor } from '../interceptors/auth-user-interceptors';
-import { AuthUser } from '../decorators/auth-user.decorator';
+import { AuthUserInterceptor } from '../../interceptors/auth-user-interceptors';
+import { AuthUser } from '../../decorators/auth-user.decorator';
 
 @Controller('users')
 @ApiTags('auth')

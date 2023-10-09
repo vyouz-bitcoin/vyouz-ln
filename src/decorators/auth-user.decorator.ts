@@ -12,12 +12,13 @@ export const AuthUser = createParamDecorator(
 
     const goService = new GoService();
 
+    // make a request to tobi once you get the user confirm if it is in my own db if not create
     console.log(goService.getHello());
     // this is where i will make the request
     return {
       firstName: 'adigun',
       lastName: 'john',
-      country: 'nigeira',
+      country: 'nigeria',
       type: 'individual',
       email: 'segun@gmail.com',
     };
