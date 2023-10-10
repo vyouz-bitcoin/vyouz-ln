@@ -12,6 +12,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { AbstractDto } from './dto/AbstractDto';
+import { UtilsService } from '../providers/utils.service';
 
 export abstract class AbstractEntity<T extends AbstractDto = AbstractDto> {
   @PrimaryGeneratedColumn('uuid')
@@ -38,4 +39,8 @@ export abstract class AbstractEntity<T extends AbstractDto = AbstractDto> {
 
   @Exclude()
   abstract dtoClass: new (entity: AbstractEntity, options?: any) => T;
+
+  toDto(options?: any): any {
+    return UtilsService.toDto(this.dtoClass, this, options);
+  }
 }

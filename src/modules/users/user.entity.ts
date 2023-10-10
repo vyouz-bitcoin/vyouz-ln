@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { UserDto } from './dtos/UserDto';
 import { AbstractEntity } from '../../common/abstract.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class UserEntity extends AbstractEntity<UserDto> {
@@ -16,6 +17,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
   @Column({ unique: true, nullable: false })
   email: string;
 
+  @Exclude()
   @Column()
   country: string;
 

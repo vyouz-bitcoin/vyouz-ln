@@ -5,7 +5,7 @@ import { UsersService } from '../../users/users.service';
 export class GoService {
   goApi: string;
 
-  constructor(public readonly userService: UsersService) {
+  constructor() {
     this.goApi = 'api config';
   }
 
