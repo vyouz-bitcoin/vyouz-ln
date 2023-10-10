@@ -1,7 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { UserDto } from './dtos/UserDto';
+import { AbstractEntity } from '../../common/abstract.entity';
 
 @Entity()
-export class User {
+export class UserEntity extends AbstractEntity<UserDto> {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -11,8 +13,16 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ unique: true, nullable: false })
+  email: string;
+
+  @Column()
+  country: string;
+
+  @Column()
+  accountType: string;
+
+  dtoClass = UserDto;
 }
 
 //country
