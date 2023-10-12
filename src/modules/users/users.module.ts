@@ -4,11 +4,12 @@ import { UserEntity } from './user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { GoModule } from '../integrations/go/go.module';
+import { UserRepository } from './user.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), GoModule],
+  imports: [TypeOrmModule.forFeature([UserRepository]), GoModule],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UserRepository],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { GoService } from '../integrations/go/go.service';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>,
+    public readonly usersRepository: UserRepository,
     public readonly goService: GoService,
   ) {}
 
@@ -16,7 +16,7 @@ export class UsersService {
     return this.usersRepository.find({});
   }
 
-  async checkUserExist(jwt: string) {
+  async checkUserExist(jwt: string): Promise<UserEntity> {
     // if we don't have user create and return
     // if we do just return
     const authUserDetails = await this.goService.getAuthDetails(jwt);

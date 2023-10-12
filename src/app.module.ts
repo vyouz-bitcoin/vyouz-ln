@@ -7,6 +7,9 @@ import { UsersModule } from './modules/users/users.module';
 import { configValidationSchema } from './config.schema';
 
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserEntity } from './modules/users/user.entity';
+import { CampaignEntity } from './modules/campaign/campaign.entity';
+import { CampaignModule } from './modules/campaign/campaign.module';
 
 @Module({
   imports: [
@@ -31,6 +34,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         };
       },
     }),
+    CampaignModule,
     UsersModule,
   ],
   controllers: [AppController],
