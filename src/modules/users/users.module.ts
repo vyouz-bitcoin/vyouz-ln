@@ -7,7 +7,7 @@ import { GoModule } from '../integrations/go/go.module';
 import { UserRepository } from './user.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRepository]), GoModule],
+  imports: [GoModule, TypeOrmModule.forFeature([UserEntity])],
   controllers: [UsersController],
   providers: [UsersService, UserRepository],
   exports: [UsersService],

@@ -20,13 +20,19 @@ export class UsersService {
     // if we don't have user create and return
     // if we do just return
     const authUserDetails = await this.goService.getAuthDetails(jwt);
+    const email = authUserDetails.email;
 
-    const user = await this.usersRepository.findOne({
-      email: authUserDetails.email,
-    });
+    const queryBuilder = this.usersRepository.createQueryBuilder('users');
+    queryBuilder.where('users.email = :email', { email });
 
-    if (user) {
-      return user;
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+    // const user = await this.usersRepository.findOne({
+    //   email: authUserDetails.email,
+    // });
+
+    if (entities) {
+      return entities[0];
     }
 
     const createdUser = await this.usersRepository.create({
