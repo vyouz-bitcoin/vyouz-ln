@@ -10,6 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserEntity } from './modules/users/user.entity';
 import { CampaignEntity } from './modules/campaign/campaign.entity';
 import { CampaignModule } from './modules/campaign/campaign.module';
+import { LnModule } from './modules/ln/ln.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CampaignModule } from './modules/campaign/campaign.module';
     }),
     CampaignModule,
     UsersModule,
+    LnModule,
   ],
   controllers: [AppController],
   providers: [AppService],
