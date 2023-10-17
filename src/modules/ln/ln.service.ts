@@ -3,21 +3,32 @@ import { InvoiceDto } from './dto/invoice.dto';
 import axios from 'axios';
 import { requestInvoice } from 'lnurl-pay';
 import { Satoshis } from 'lnurl-pay/dist/types/types';
+const CC = require('currency-converter-lt');
 
 @Injectable()
 export class LnService {
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
-      const response = await axios({
+      //convert the currency passed to USD
+      let currencyConverter = new CC();
+      let localAmount = await currencyConverter
+        .from(invoiceDto.currency)
+        .to('USD')
+        .amount(invoiceDto.amount)
+        .convert();
+
+      const BTCVALUE = await axios({
         method: 'GET',
-        url: `https://blockchain.info/tobtc?currency=${invoiceDto.currency}&value=${invoiceDto.amount}`,
+        url: `https://blockchain.info/tobtc?currency=USD&value=${localAmount}`,
       });
+
+      const SATS = BTCVALUE.data * 100000000;
 
       const { invoice, params, successAction, validatePreimage } =
         await requestInvoice({
           lnUrlOrAddress: process.env.LN_ADDRESS,
-          tokens: invoiceDto.amount as Satoshis,
-          comment: 'wallet funding',
+          tokens: SATS as Satoshis,
+          comment: 'lightning wallet funding',
         });
       return { invoice, params, successAction, validatePreimage };
     } catch {
