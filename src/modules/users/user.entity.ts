@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { UserDto } from './dtos/UserDto';
 import { AbstractEntity } from '../../common/abstract.entity';
 import { Exclude } from 'class-transformer';
 import { CampaignEntity } from '../campaign/campaign.entity';
+import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity<UserDto> {
@@ -24,6 +25,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
 
   @OneToMany(() => CampaignEntity, (entity) => entity.user)
   campaign: CampaignEntity[];
+
+  @OneToMany(() => TransactionEntity, (entity) => entity.user)
+  transaction: TransactionEntity[];
 
   dtoClass = UserDto;
 }

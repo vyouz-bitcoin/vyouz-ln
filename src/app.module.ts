@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -7,10 +7,10 @@ import { UsersModule } from './modules/users/users.module';
 import { configValidationSchema } from './config.schema';
 
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { UserEntity } from './modules/users/user.entity';
-import { CampaignEntity } from './modules/campaign/campaign.entity';
 import { CampaignModule } from './modules/campaign/campaign.module';
 import { LnModule } from './modules/ln/ln.module';
+import { WalletModule } from './modules/wallet/wallet.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -38,6 +38,8 @@ import { LnModule } from './modules/ln/ln.module';
     CampaignModule,
     UsersModule,
     LnModule,
+    WalletModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { GoService } from '../integrations/go/go.service';
 import { UserRepository } from './user.repository';
@@ -14,6 +12,13 @@ export class UsersService {
 
   getAllUsers(): Promise<UserEntity[]> {
     return this.usersRepository.find({});
+  }
+
+  async getById(id: string): Promise<UserEntity> {
+    let user = {} as UserEntity;
+    if (!id) return user;
+    user = await this.usersRepository.findOneBy({ id });
+    return user;
   }
 
   async checkUserExist(jwt: string): Promise<UserEntity> {
