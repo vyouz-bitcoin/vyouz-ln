@@ -11,6 +11,9 @@ import { CampaignModule } from './modules/campaign/campaign.module';
 import { LnModule } from './modules/ln/ln.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { InvoiceGateway } from './modules/ln/ln.gateway';
+import { SocketModule } from './socket/socket.module';
+import { ClientManagerService } from './modules/ln/client-manager.service';
 
 @Module({
   imports: [
@@ -40,8 +43,9 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     LnModule,
     WalletModule,
     TransactionModule,
+    SocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, InvoiceGateway, ClientManagerService],
 })
 export class AppModule {}

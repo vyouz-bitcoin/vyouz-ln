@@ -6,6 +6,7 @@ import { Response } from 'express';
 @Controller('ln')
 export class LnController {
   constructor(private readonly lnService: LnService) {}
+
   @Post('invoice')
   async generateInvoice(@Body() InvoiceDto: InvoiceDto, @Res() res: Response) {
     try {
