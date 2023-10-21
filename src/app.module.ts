@@ -11,10 +11,14 @@ import { CampaignModule } from './modules/campaign/campaign.module';
 import { LnModule } from './modules/ln/ln.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TelegramModule } from './modules/telegram/telegram.module';
+import { UrlModule } from './modules/url/url.module';
 
 @Module({
   imports: [
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: [`stage.${process.env.STAGE}.env`],
       validationSchema: configValidationSchema,
@@ -40,6 +44,8 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     LnModule,
     WalletModule,
     TransactionModule,
+    TelegramModule,
+    UrlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

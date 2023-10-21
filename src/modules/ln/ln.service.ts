@@ -3,6 +3,7 @@ import { InvoiceDto } from './dto/invoice.dto';
 import axios from 'axios';
 import { requestInvoice } from 'lnurl-pay';
 import { Satoshis } from 'lnurl-pay/dist/types/types';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CC = require('currency-converter-lt');
 
 @Injectable()
@@ -10,8 +11,8 @@ export class LnService {
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
       //convert the currency passed to USD
-      let currencyConverter = new CC();
-      let localAmount = await currencyConverter
+      const currencyConverter = new CC();
+      const localAmount = await currencyConverter
         .from(invoiceDto.currency)
         .to('USD')
         .amount(invoiceDto.amount)

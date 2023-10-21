@@ -4,6 +4,7 @@ import { AbstractEntity } from '../../common/abstract.entity';
 import { Exclude } from 'class-transformer';
 import { CampaignEntity } from '../campaign/campaign.entity';
 import { TransactionEntity } from '../transaction/transaction.entity';
+import { UrlEntity } from '../url/url.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity<UserDto> {
@@ -28,6 +29,9 @@ export class UserEntity extends AbstractEntity<UserDto> {
 
   @OneToMany(() => TransactionEntity, (entity) => entity.user)
   transaction: TransactionEntity[];
+
+  @OneToMany(() => UrlEntity, (entity) => entity.user)
+  url: UrlEntity[];
 
   dtoClass = UserDto;
 }

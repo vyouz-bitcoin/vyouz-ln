@@ -38,6 +38,9 @@ export class CampaignEntity extends AbstractEntity<CampaignDto> {
   targetGender: string;
 
   @Column({ nullable: false })
+  website: string;
+
+  @Column({ nullable: false })
   userId: string;
   //  relations
 
