@@ -8,6 +8,8 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { SocketAdapter } from './socket/socket.adapter';
 
 async function bootstrap() {
   const logger = new Logger();
@@ -18,7 +20,15 @@ async function bootstrap() {
   );
   app.use(requestContext.middleware('request'));
 
+  const corsOptions: CorsOptions = {
+    origin: '*', // Adjust the origin to your needs
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  };
+
   const port = process.env.PORT;
+  app.enableCors(corsOptions);
+  app.useWebSocketAdapter(new SocketAdapter(app));
   setupSwagger(app);
   await app.listen(port);
 

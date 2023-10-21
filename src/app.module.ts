@@ -14,6 +14,9 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { UrlModule } from './modules/url/url.module';
+import { InvoiceGateway } from './modules/ln/ln.gateway';
+import { SocketModule } from './socket/socket.module';
+import { ClientManagerService } from './modules/ln/client-manager.service';
 
 @Module({
   imports: [
@@ -46,8 +49,9 @@ import { UrlModule } from './modules/url/url.module';
     TransactionModule,
     TelegramModule,
     UrlModule,
+    SocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, InvoiceGateway, ClientManagerService],
 })
 export class AppModule {}
