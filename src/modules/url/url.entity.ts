@@ -17,6 +17,18 @@ export class UrlEntity extends AbstractEntity<UrlDto> {
   @Column({ nullable: true })
   userId: string;
 
+  @Column({ default: true })
+  active: boolean;
+
+  @Column({ default: 0 })
+  clicksPaidOut: number;
+
+  //  @Column({ nullable: true })
+  // userId: string;
+
+  // @Column({ nullable: true })
+  // userId: string;
+
   @ManyToOne(() => UserEntity, (entity) => entity.id)
   user: UserEntity;
 

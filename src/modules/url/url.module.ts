@@ -11,5 +11,6 @@ import { UrlRepository } from './url.repository';
   imports: [UsersModule, TypeOrmModule.forFeature([UrlEntity])],
   providers: [UrlService, UrlRepository],
   controllers: [UrlController],
+  exports: [UrlService],
 })
 export class UrlModule {}

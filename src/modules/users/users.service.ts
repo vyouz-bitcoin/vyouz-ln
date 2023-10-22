@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserEntity } from './user.entity';
 import { GoService } from '../integrations/go/go.service';
 import { UserRepository } from './user.repository';
+import { accountType } from './../../common/enums/user';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +27,10 @@ export class UsersService {
     // if we do just return
     const authUserDetails = await this.goService.getAuthDetails(jwt);
     const email = authUserDetails.email;
+    const type =
+      authUserDetails.type === 'wow'
+        ? accountType.ADVERTISER
+        : accountType.BLOGGER;
 
     const queryBuilder = this.usersRepository.createQueryBuilder('users');
     queryBuilder.where('users.email = :email', { email });
@@ -45,9 +50,27 @@ export class UsersService {
       firstName: authUserDetails.firstName,
       lastName: authUserDetails.lastName,
       country: authUserDetails.country,
-      accountType: authUserDetails.type,
+      accountType: type,
     });
 
     return this.usersRepository.save(createdUser);
+  }
+
+  // Inside your service or repository class
+  async getBloggerUsersWithTelegramLink(): Promise<UserEntity[]> {
+    try {
+      const bloggerUsers = await this.usersRepository
+        .createQueryBuilder('user')
+        .where('user.accountType = :accountType', {
+          accountType: accountType.BLOGGER,
+        })
+        .andWhere('user.telegramLink IS NOT NULL')
+        .getMany();
+
+      return bloggerUsers;
+    } catch (error) {
+      // Handle the error, e.g., log it or throw a custom exception
+      throw error;
+    }
   }
 }

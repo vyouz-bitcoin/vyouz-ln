@@ -6,17 +6,19 @@ import {
   Param,
   Res,
   Body,
+  Req,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateUrlDto } from './dto/createUrlDto';
+import { UsersService } from '../users/users.service';
 
 @Controller('l')
 @ApiTags('l')
 export class UrlController {
   constructor(
-    private usersService: UrlService,
+    private usersService: UsersService,
     private urlService: UrlService,
   ) {}
 
@@ -38,8 +40,17 @@ export class UrlController {
   }
 
   @Post('create-short-url')
-  async createShortUrl(@Body() dto: CreateUrlDto): Promise<string> {
-    const shortenedUrl = await this.urlService.createShortenedUrl(dto.url);
+  async createShortUrl(
+    @Req() req: Request,
+    @Body() dto: CreateUrlDto,
+  ): Promise<string> {
+    const user = await this.usersService.checkUserExist(
+      req.headers.authorization,
+    );
+    const shortenedUrl = await this.urlService.createShortenedUrl(
+      user.id,
+      dto.url,
+    );
     return shortenedUrl;
   }
 }

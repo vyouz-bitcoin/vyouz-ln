@@ -5,6 +5,7 @@ import { Exclude } from 'class-transformer';
 import { CampaignEntity } from '../campaign/campaign.entity';
 import { TransactionEntity } from '../transaction/transaction.entity';
 import { UrlEntity } from '../url/url.entity';
+import { accountType } from '../../common/enums/user';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity<UserDto> {
@@ -22,7 +23,13 @@ export class UserEntity extends AbstractEntity<UserDto> {
   country: string;
 
   @Column()
-  accountType: string;
+  accountType: accountType;
+
+  @Column({ nullable: true })
+  website: string;
+
+  @Column({ nullable: true })
+  telegramChannel: string;
 
   @OneToMany(() => CampaignEntity, (entity) => entity.user)
   campaign: CampaignEntity[];

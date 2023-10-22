@@ -19,6 +19,7 @@ export class GoService {
       country: 'nigeria',
       type: 'individual',
       email: 'segun@gmail.com',
+      website: '',
     };
   }
 }
