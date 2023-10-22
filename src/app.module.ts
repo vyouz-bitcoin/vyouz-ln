@@ -11,6 +11,9 @@ import { CampaignModule } from './modules/campaign/campaign.module';
 import { LnModule } from './modules/ln/ln.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TelegramModule } from './modules/telegram/telegram.module';
+import { UrlModule } from './modules/url/url.module';
 import { InvoiceGateway } from './modules/ln/ln.gateway';
 import { SocketModule } from './socket/socket.module';
 import { ClientManagerService } from './modules/ln/client-manager.service';
@@ -18,6 +21,7 @@ import { ClientManagerService } from './modules/ln/client-manager.service';
 @Module({
   imports: [
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: [`stage.${process.env.STAGE}.env`],
       validationSchema: configValidationSchema,
@@ -43,6 +47,8 @@ import { ClientManagerService } from './modules/ln/client-manager.service';
     LnModule,
     WalletModule,
     TransactionModule,
+    TelegramModule,
+    UrlModule,
     SocketModule,
   ],
   controllers: [AppController],

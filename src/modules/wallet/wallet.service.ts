@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Currency } from '../../common/enums/currency';
 import { WalletEntity } from './wallet.entity';
 import { WalletRepository } from './wallet.repository';
@@ -6,7 +6,7 @@ import { Decimal } from 'decimal.js';
 import {
   TransactionStatus,
   TransactionType,
-} from 'src/common/enums/transaction';
+} from '../../common/enums/transaction';
 import { Any } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { TransactionRepository } from '../transaction/transaction.repository';
@@ -24,15 +24,12 @@ export class WalletService {
 
   constructor(
     public readonly walletRepository: WalletRepository,
-    public readonly transactionRepository: TransactionRepository,
+    @Inject(forwardRef(() => UsersService))
     public readonly userService: UsersService,
+    public readonly transactionRepository: TransactionRepository,
   ) {}
 
-  async getWallets(userId: string): Promise<WalletEntity[]> {
-    // create default wallet(s) if not existing
-    await this.createInitialWallets(userId);
-
-    // TODO: query only active wallets
+  async getWallets(userId: string): Promise<WalletEntity> {
     const wallets = await this.walletRepository.find({
       where: {
         userId,
@@ -41,6 +38,10 @@ export class WalletService {
       order: { createdAt: 'ASC' },
     });
 
+    if (!wallets) {
+      // create default wallet(s) if not existing
+      return this.createInitialWallets(userId);
+    }
     // Get fiat usd wallet balance
     const usdWalletIndex = this._getWalletIndex(wallets, Currency.USD);
     wallets[usdWalletIndex].balance = await this.getUsdWalletBalance(
@@ -48,7 +49,7 @@ export class WalletService {
       wallets,
     );
 
-    return wallets;
+    return wallets[0];
   }
   async getUsdWalletBalance(
     userId: string,
@@ -65,11 +66,12 @@ export class WalletService {
     return { usd };
   }
 
-  async createInitialWallets(userId: string): Promise<void> {
-    // const user = await this.userService.getById(userId);
+  async createInitialWallets(userId: string): Promise<WalletEntity> {
+    const user = await this.userService.getById(userId);
     for await (const wallet of this.wallets) {
       wallet.userId = userId;
       wallet.active = true;
+      wallet.user = user;
       const dbWallet = await this.walletRepository.findOneBy({
         userId,
         currency: wallet.currency,
@@ -79,6 +81,8 @@ export class WalletService {
         await this.walletRepository.save(savedWallet);
       }
     }
+
+    return this.getWallets(userId);
   }
 
   async getBalance(walletId: string) {

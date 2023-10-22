@@ -1,6 +1,7 @@
 export enum TransactionAction {
   FUND_BITCOIN = 'fund_bitcoin',
   FUND_USD = 'fund_usd',
+  CREDIT_WALLET_FOR_PAYOUT = 'credlt wallet payout',
 }
 
 export enum TransactionType {
