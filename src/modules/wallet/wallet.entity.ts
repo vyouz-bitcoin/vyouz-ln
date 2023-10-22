@@ -27,10 +27,10 @@ export class WalletEntity extends AbstractEntity<WalletDto> {
   @Column({ nullable: true })
   userId: string;
 
+  balance: any;
+
   @OneToOne(() => UserEntity, (entity) => entity.id)
   user: UserEntity;
-
-  balance: any;
 
   @OneToMany(() => TransactionEntity, (entity) => entity.wallet)
   transactions: TransactionEntity;

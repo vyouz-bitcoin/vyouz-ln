@@ -7,7 +7,6 @@ export class AppService {
   }
 }
 
-// u need to have a wallet
-// u need to have transactions
-// to create a campaign you need to check if wallet has enough balance....and make a debit transactions
-// then you need to have telegram bot as well
+// check user and create user if is created (2)
+// create campaigns and check if it is created (2)
+// do telegram stuff and check if it works

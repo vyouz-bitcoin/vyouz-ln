@@ -27,9 +27,6 @@ export class UserEntity extends AbstractEntity<UserDto> {
   accountType: accountType;
 
   @Column({ nullable: true })
-  website: string;
-
-  @Column({ nullable: true })
   telegramChannel: string;
 
   @OneToMany(() => CampaignEntity, (entity) => entity.user)
@@ -38,7 +35,7 @@ export class UserEntity extends AbstractEntity<UserDto> {
   @OneToMany(() => TransactionEntity, (entity) => entity.user)
   transaction: TransactionEntity[];
 
-  @OneToOne(() => WalletEntity, (entity) => entity.userId)
+  @OneToOne(() => WalletEntity, (entity) => entity.user)
   wallet: WalletEntity[];
 
   @OneToMany(() => UrlEntity, (entity) => entity.user)
