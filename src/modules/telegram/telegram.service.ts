@@ -5,6 +5,7 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { UsersService } from '../users/users.service';
 import { CampaignService } from '../campaign/campaign.service';
 import { UrlService } from '../url/url.service';
+import { shuffle } from 'lodash';
 
 @Injectable()
 export class TelegramService {
@@ -33,7 +34,8 @@ export class TelegramService {
   async sendAdToChannel(channelName: string, message: string) {
     const chat = await this.bot.getChat(channelName);
 
-    await this.bot.sendMessage(chat?.id, 'message');
+    await this.bot.sendMessage(chat?.id, message, { parse_mode: 'HTML' });
+    console.log('message sent');
     return 'Message Sent';
   }
 
@@ -44,8 +46,12 @@ export class TelegramService {
   async sendPeriodicAd() {
     const telegramBloggers =
       await this.userService.getBloggerUsersWithTelegramLink();
-    const campaigns =
-      await this.campaignService.getActiveCampaignsWithWebsite();
+
+    let campaigns = await this.campaignService.getActiveCampaignsWithWebsite();
+
+    if (campaigns.length > 5) {
+      campaigns = shuffle(campaigns).slice(0, 5); // Shuffle and pick random 5 campaigns
+    }
 
     // Parallel processing of bloggers using Promise.all
     await Promise.all(
@@ -74,11 +80,13 @@ export class TelegramService {
 
         let messageContent = '';
         for (const [originalUrl, shortenedUrl] of bloggerUrls) {
-          messageContent += `Campaign: \n
-         please click the link below for amazing offer 
-         \n
-         ${shortenedUrl}
-         \n`;
+          messageContent = `
+   <b>Vyouz Campaign:</b>
+    \n\n
+    Please click the link below for an amazing offer:
+    \n
+    <a href="${shortenedUrl}">${shortenedUrl}</a>
+`;
         }
 
         await this.sendAdToChannel(blogger.telegramChannel, messageContent);

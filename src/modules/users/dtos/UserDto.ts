@@ -20,8 +20,6 @@ export class UserDto extends AbstractDto {
   @ApiProperty()
   accountType: accountType; // will be enum
 
-  @ApiProperty()
-  website: string; // will be enum
   constructor(user: UserEntity) {
     super(user);
     this.firstName = user.firstName;
@@ -29,6 +27,5 @@ export class UserDto extends AbstractDto {
     this.email = user.email;
     this.accountType = user.accountType;
     this.country = user.country;
-    this.website = user.website;
   }
 }

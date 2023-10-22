@@ -12,9 +12,6 @@ export class CampaignDto extends AbstractDto {
   amount: number;
 
   @ApiProperty()
-  satAmount: number;
-
-  @ApiProperty()
   type: CampaignType; // image // text
 
   @ApiProperty()
@@ -36,6 +33,9 @@ export class CampaignDto extends AbstractDto {
   targetGender: string;
 
   @ApiProperty()
+  website: string;
+
+  @ApiProperty()
   userId: string;
   constructor(campaign: CampaignEntity) {
     super(campaign);
@@ -49,5 +49,6 @@ export class CampaignDto extends AbstractDto {
     this.targetAge = campaign.targetAge;
     this.targetGender = campaign.targetGender;
     this.userId = campaign.userId;
+    this.website = campaign.website;
   }
 }

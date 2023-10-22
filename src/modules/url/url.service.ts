@@ -87,9 +87,9 @@ export class UrlService {
       await this.urlRepository.save(url);
     }
 
-    // // Payout the user
-    // if (totalNotPaidOutClicks > 0) {
-    //   await this.userService.payout(userId, totalNotPaidOutClicks);
-    // }
+    // Payout the user
+    if (totalNotPaidOutClicks > 0) {
+      await this.userService.payout(userId, totalNotPaidOutClicks);
+    }
   }
 }

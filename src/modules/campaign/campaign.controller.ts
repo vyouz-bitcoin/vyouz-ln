@@ -1,9 +1,19 @@
-import { Controller, Get, Query, Headers, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Headers,
+  Req,
+  Post,
+  Body,
+  Res,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { CampaignService } from './campaign.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PageOptionsDto } from '../../common/dto/PageOptionsDto';
+import { CreateCampaignDto } from './dto/CreateCampaign.dto';
 
 @Controller('campaigns')
 @ApiTags('campaign')
@@ -33,6 +43,31 @@ export class CampaignController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getASingleUser(@Req() request: Request) {
     return this.usersService.checkUserExist(request.headers.authorization);
+  }
+
+  @Post('create-campaign')
+  async createCampaign(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() dto: CreateCampaignDto,
+  ) {
+    console.log(
+      '🚀 ~ file: campaign.controller.ts:54 ~ CampaignController ~ dto:',
+      dto,
+    );
+    const user = await this.usersService.checkUserExist(
+      req.headers.authorization,
+    );
+    console.log(
+      '🚀 ~ file: campaign.controller.ts:57 ~ CampaignController ~ user:',
+      user,
+    );
+    const campaign = await this.campaignService.create(user.id, dto);
+    console.log(
+      '🚀 ~ file: campaign.controller.ts:59 ~ CampaignController ~ campaign:',
+      campaign,
+    );
+    res.status(200).json(campaign);
   }
 }
 

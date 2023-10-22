@@ -13,7 +13,11 @@ import { PageDto } from '../../common/dto/Page.Dto';
 export class CampaignService {
   constructor(public readonly campaignRepository: CampaignRepository) {}
 
-  create(createCampaignDto: CreateCampaignDto): Promise<CampaignEntity> {
+  create(
+    userId: string,
+    createCampaignDto: CreateCampaignDto,
+  ): Promise<CampaignEntity> {
+    createCampaignDto.userId = userId;
     const campaigns = this.campaignRepository.create(createCampaignDto);
     return this.campaignRepository.save(campaigns);
   }
@@ -24,26 +28,17 @@ export class CampaignService {
 
     queryBuilder
       .where('campaigns.userId = :userId', { userId })
-      .orderBy('campaign.createdAt', pageOptionsDto.order)
+      .orderBy('campaigns.createdAt', pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 
     const itemCount = await queryBuilder.getCount();
+
     const { entities } = await queryBuilder.getRawAndEntities();
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
     return new PageDto(entities, pageMetaDto);
-
-    // const queryBuilder =
-    //   this.campaignRepository.createQueryBuilder('campaigns')
-    // const [campaigns, pageMetaDto] = await queryBuilder
-    //   .where('campaigns.userId = :userId', { userId })
-    //   .orderBy('campaigns.createdAt', 'DESC')
-    //   .paginate()
-    //   .execute()
-
-    // return new CampaignPageDto(campaigns, pageMetaDto);
   }
 
   // Inside your service or repository class
@@ -54,7 +49,12 @@ export class CampaignService {
         .createQueryBuilder('campaign')
         .where('campaign.startDate <= :currentDate', { currentDate })
         .andWhere('campaign.endDate >= :currentDate', { currentDate })
-        .andWhere('campaign.website IS NOT NULL')
+        .andWhere(
+          'campaign.website IS NOT NULL AND campaign.website != :emptyString',
+          {
+            emptyString: '',
+          },
+        )
         .getMany();
 
       return activeCampaigns;

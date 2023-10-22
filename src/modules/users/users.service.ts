@@ -25,7 +25,6 @@ export class UsersService {
     public readonly usersRepository: UserRepository,
     public readonly goService: GoService,
     public readonly transactionRepository: TransactionRepository,
-
     @Inject(forwardRef(() => WalletService))
     public readonly walletService: WalletService,
   ) {}
@@ -45,9 +44,13 @@ export class UsersService {
     // if we don't have user create and return
     // if we do just return
     const authUserDetails = await this.goService.getAuthDetails(jwt);
+    console.log(
+      '🚀 ~ file: users.service.ts:47 ~ UsersService ~ checkUserExist ~ authUserDetails:',
+      authUserDetails,
+    );
     const email = authUserDetails.email;
     const type =
-      authUserDetails.type === 'wow'
+      authUserDetails.accountType === accountType.ADVERTISER
         ? accountType.ADVERTISER
         : accountType.BLOGGER;
 
@@ -56,11 +59,14 @@ export class UsersService {
 
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
+    console.log(
+      '🚀 ~ file: users.service.ts:59 ~ UsersService ~ checkUserExist ~ entities:',
+      entities,
+    );
     // const user = await this.usersRepository.findOne({
     //   email: authUserDetails.email,
     // });
-
-    if (entities) {
+    if (entities.length > 0) {
       return entities[0];
     }
 
@@ -70,7 +76,12 @@ export class UsersService {
       lastName: authUserDetails.lastName,
       country: authUserDetails.country,
       accountType: type,
+      telegramChannel: authUserDetails.telegramLink,
     });
+    console.log(
+      '🚀 ~ file: users.service.ts:76 ~ UsersService ~ checkUserExist ~ createdUser:',
+      createdUser,
+    );
 
     return this.usersRepository.save(createdUser);
   }
@@ -83,7 +94,12 @@ export class UsersService {
         .where('user.accountType = :accountType', {
           accountType: accountType.BLOGGER,
         })
-        .andWhere('user.telegramLink IS NOT NULL')
+        .andWhere(
+          'user.telegramChannel IS NOT NULL AND user.telegramChannel != :emptyString',
+          {
+            emptyString: '',
+          },
+        )
         .getMany();
 
       return bloggerUsers;
@@ -118,6 +134,8 @@ export class UsersService {
       reference: nanoid(12),
       amount: this.convertToHighestDenomination(topay),
     } as TransactionEntity);
+
+    return this.transactionRepository.save(createdTransaction);
   }
 
   convertToHighestDenomination(amount: number): number {
