@@ -1,22 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Query,
-  Headers,
-  Req,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Query, Headers, Req } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { Request } from 'express';
 import { CampaignService } from './campaign.service';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PageOptionsDto } from '../../common/dto/PageOptionsDto';
 
 @Controller('campaigns')

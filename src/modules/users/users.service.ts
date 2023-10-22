@@ -1,13 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { UserEntity } from './user.entity';
 import { GoService } from '../integrations/go/go.service';
 import { UserRepository } from './user.repository';
+import { accountType } from './../../common/enums/user';
+import { TransactionRepository } from '../transaction/transaction.repository';
+import { WalletService } from '../wallet/wallet.service';
+import Decimal from 'decimal.js';
+import {
+  TransactionAction,
+  TransactionStatus,
+  TransactionType,
+} from './../../common/enums/transaction';
+import { nanoid } from 'nanoid';
+import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     public readonly usersRepository: UserRepository,
     public readonly goService: GoService,
+    public readonly transactionRepository: TransactionRepository,
+
+    @Inject(forwardRef(() => WalletService))
+    public readonly walletService: WalletService,
   ) {}
 
   getAllUsers(): Promise<UserEntity[]> {
@@ -26,6 +46,10 @@ export class UsersService {
     // if we do just return
     const authUserDetails = await this.goService.getAuthDetails(jwt);
     const email = authUserDetails.email;
+    const type =
+      authUserDetails.type === 'wow'
+        ? accountType.ADVERTISER
+        : accountType.BLOGGER;
 
     const queryBuilder = this.usersRepository.createQueryBuilder('users');
     queryBuilder.where('users.email = :email', { email });
@@ -45,9 +69,60 @@ export class UsersService {
       firstName: authUserDetails.firstName,
       lastName: authUserDetails.lastName,
       country: authUserDetails.country,
-      accountType: authUserDetails.type,
+      accountType: type,
     });
 
     return this.usersRepository.save(createdUser);
+  }
+
+  // Inside your service or repository class
+  async getBloggerUsersWithTelegramLink(): Promise<UserEntity[]> {
+    try {
+      const bloggerUsers = await this.usersRepository
+        .createQueryBuilder('user')
+        .where('user.accountType = :accountType', {
+          accountType: accountType.BLOGGER,
+        })
+        .andWhere('user.telegramLink IS NOT NULL')
+        .getMany();
+
+      return bloggerUsers;
+    } catch (error) {
+      // Handle the error, e.g., log it or throw a custom exception
+      throw error;
+    }
+  }
+
+  async payout(userId: string, totalClick: number) {
+    // get company wallet
+    const wallet = await this.walletService.getWallets(userId);
+    if (!wallet) throw new BadRequestException('Wallet not found');
+    // check balance
+    const balance = await this.walletService.getBalance(wallet.id);
+
+    // we pay 1 sats for 1 click  and also turn to cents
+    const topay = totalClick * 1 * 100;
+
+    const balanceAfter = Number(new Decimal(balance).add(topay));
+
+    const createdTransaction = this.transactionRepository.create({
+      balanceAfter,
+      walletId: wallet.id,
+      balanceBefore: balance,
+      type: TransactionType.DEBIT,
+      userId: userId,
+      status: TransactionStatus.SUCCESS,
+      centAmount: topay,
+      action: TransactionAction.CREDIT_WALLET_FOR_PAYOUT,
+      description: 'payout telegram clicks',
+      reference: nanoid(12),
+      amount: this.convertToHighestDenomination(topay),
+    } as TransactionEntity);
+  }
+
+  convertToHighestDenomination(amount: number): number {
+    amount = amount || 0;
+    const rate = 100;
+    return Number(new Decimal(amount).dividedBy(rate).toDecimalPlaces(2));
   }
 }

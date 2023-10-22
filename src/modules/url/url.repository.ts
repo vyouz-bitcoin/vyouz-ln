@@ -1,14 +1,14 @@
 import { Repository } from 'typeorm';
 
-import { CampaignEntity } from './campaign.entity';
+import { UrlEntity } from './url.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class CampaignRepository extends Repository<CampaignEntity> {
+export class UrlRepository extends Repository<UrlEntity> {
   constructor(
-    @InjectRepository(CampaignEntity)
-    repository: Repository<CampaignEntity>,
+    @InjectRepository(UrlEntity)
+    repository: Repository<UrlEntity>,
   ) {
     super(repository.target, repository.manager, repository.queryRunner);
   }

@@ -45,4 +45,22 @@ export class CampaignService {
 
     // return new CampaignPageDto(campaigns, pageMetaDto);
   }
+
+  // Inside your service or repository class
+  async getActiveCampaignsWithWebsite(): Promise<CampaignEntity[]> {
+    try {
+      const currentDate = new Date();
+      const activeCampaigns = await this.campaignRepository
+        .createQueryBuilder('campaign')
+        .where('campaign.startDate <= :currentDate', { currentDate })
+        .andWhere('campaign.endDate >= :currentDate', { currentDate })
+        .andWhere('campaign.website IS NOT NULL')
+        .getMany();
+
+      return activeCampaigns;
+    } catch (error) {
+      // Handle the error, e.g., log it or throw a custom exception
+      throw error;
+    }
+  }
 }
