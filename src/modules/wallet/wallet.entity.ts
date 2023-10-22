@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity';
 
@@ -14,10 +14,6 @@ export class WalletEntity extends AbstractEntity<WalletDto> {
   @Column({ nullable: true })
   name: string;
 
-  @Exclude()
-  @Column({ nullable: true })
-  userId: string;
-
   @Column({ nullable: true })
   active: boolean;
 
@@ -27,8 +23,12 @@ export class WalletEntity extends AbstractEntity<WalletDto> {
   @Column({ nullable: true })
   currency: Currency;
 
-  @ManyToOne(() => UserEntity, (entity) => entity.id)
-  company: UserEntity;
+  @Exclude()
+  @Column({ nullable: true })
+  userId: string;
+
+  @OneToOne(() => UserEntity, (entity) => entity.id)
+  user: UserEntity;
 
   balance: any;
 
