@@ -28,5 +28,6 @@ export class InvoiceGateway
   @SubscribeMessage('payment-verified')
   handlePaymentVerified(client: Socket, data: any) {
     client.emit('payment-verified', data);
+    // the data should contain something to recognize the user so i can credit there wallet
   }
 }

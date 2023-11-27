@@ -11,5 +11,6 @@ import { UsersModule } from '../users/users.module';
   controllers: [CampaignController],
   providers: [CampaignService, CampaignRepository],
   imports: [UsersModule, TypeOrmModule.forFeature([CampaignEntity])],
+  exports: [CampaignService],
 })
 export class CampaignModule {}

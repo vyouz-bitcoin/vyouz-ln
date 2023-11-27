@@ -67,10 +67,10 @@ export class TransactionEntity extends AbstractEntity<TransactionDto> {
   @Column({ nullable: true })
   userId: string;
 
-  @ManyToOne(() => WalletEntity, (entity) => entity.transactions)
+  @ManyToOne(() => WalletEntity, (entity) => entity.id)
   wallet: WalletEntity;
 
-  @ManyToOne(() => UserEntity, (entity) => entity.transaction)
+  @ManyToOne(() => UserEntity, (entity) => entity.id)
   user: UserEntity;
 
   dtoClass = TransactionDto;

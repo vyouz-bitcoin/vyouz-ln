@@ -14,9 +14,6 @@ export class CampaignEntity extends AbstractEntity<CampaignDto> {
   amount: number;
 
   @Column({ nullable: false })
-  satAmount: number;
-
-  @Column({ nullable: false })
   type: CampaignType; // image // text
 
   @Column({ nullable: false })
@@ -37,11 +34,15 @@ export class CampaignEntity extends AbstractEntity<CampaignDto> {
   @Column({ nullable: false })
   targetGender: string;
 
+  @Column({ nullable: true })
+  website: string;
+
   @Column({ nullable: false })
   userId: string;
   //  relations
 
-  @ManyToOne(() => UserEntity, (entity) => entity.id)
+  @ManyToOne(() => UserEntity, (user) => user.id)
   user: UserEntity;
+
   dtoClass = CampaignDto;
 }

@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Allow, IsEnum, IsNotEmpty, Matches } from 'class-validator';
 import { CampaignType } from '../../../common/enums/campaignType';
 
 export class CreateCampaignDto {
@@ -11,9 +11,9 @@ export class CreateCampaignDto {
   @IsNotEmpty({ message: 'amount is required' })
   amount: number;
 
-  @ApiProperty()
-  // @IsNotEmpty({ message: 'amount is required' })
-  satAmount: number;
+  // @ApiProperty()
+  // // @IsNotEmpty({ message: 'amount is required' })
+  // satAmount: number;
 
   @ApiProperty({ enum: CampaignType })
   @IsEnum(CampaignType, { message: 'type entered is not valid' })
@@ -25,12 +25,12 @@ export class CreateCampaignDto {
   content: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: 'start date is required' })
-  startDate: string;
+  @IsNotEmpty({ message: 'startDate is required' })
+  startDate: Date;
 
   @ApiProperty()
-  @IsNotEmpty({ message: 'Device is required' })
-  endDate: string;
+  @IsNotEmpty({ message: 'endDate is required' })
+  endDate: Date;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'Device is required' })
@@ -44,7 +44,13 @@ export class CreateCampaignDto {
   @IsNotEmpty({ message: 'Device is required' })
   targetGender: string;
 
-  @ApiProperty()
-  @IsNotEmpty({ message: 'userId is required' })
+  @ApiPropertyOptional()
+  @Matches(/^https:\/\/[a-zA-Z0-9_-]+(\.[a-zA-Z]{2,6})$/, {
+    message:
+      'Invalid URL format. It must start with https:// and have a valid domain.',
+  })
+  // @IsNotEmpty({ message: 'Website is required' })
+  website: string;
+  // @ApiPropertyOptional()
   userId: string;
 }

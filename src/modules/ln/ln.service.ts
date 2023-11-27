@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InvoiceDto } from './dto/invoice.dto';
 import axios from 'axios';
+
 import { AmountDto } from './dto/amount.dto';
 import { LightningAddress, Invoice } from '@getalby/lightning-tools';
 import { InvoiceGateway } from './ln.gateway';
 import { ClientManagerService } from './client-manager.service';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CC = require('currency-converter-lt');
 @Injectable()
 export class LnService {
@@ -16,8 +18,8 @@ export class LnService {
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
       //convert the currency passed to USD
-      let currencyConverter = new CC();
-      let localAmount = await currencyConverter
+      const currencyConverter = new CC();
+      const localAmount = await currencyConverter
         .from(invoiceDto.currency)
         .to('USD')
         .amount(invoiceDto.amount)
@@ -48,7 +50,7 @@ export class LnService {
       const intervalId = setInterval(async () => {
         const paid = await invoice.isPaid();
         if (paid) {
-          let client = this.clientManager.getClient(clientId);
+          const client = this.clientManager.getClient(clientId);
           this.invoiceGateway.handlePaymentVerified(client, {
             message: 'Payment verified',
           });
@@ -62,8 +64,8 @@ export class LnService {
 
   async getSatsValue(amountDto: AmountDto) {
     try {
-      let currencyConverter = new CC();
-      let localAmount = await currencyConverter
+      const currencyConverter = new CC();
+      const localAmount = await currencyConverter
         .from(amountDto.currency)
         .to('USD')
         .amount(parseFloat(amountDto.amount))
