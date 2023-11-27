@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InvoiceDto } from './dto/invoice.dto';
 import axios from 'axios';
-import { requestInvoice } from 'lnurl-pay';
-import { Satoshis } from 'lnurl-pay/dist/types/types';
 import { AmountDto } from './dto/amount.dto';
 import { LightningAddress, Invoice } from '@getalby/lightning-tools';
 import { InvoiceGateway } from './ln.gateway';

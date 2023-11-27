@@ -14,6 +14,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { InvoiceGateway } from './modules/ln/ln.gateway';
 import { SocketModule } from './socket/socket.module';
 import { ClientManagerService } from './modules/ln/client-manager.service';
+import { TelegramModule } from './modules/telegram/telegram.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ClientManagerService } from './modules/ln/client-manager.service';
     WalletModule,
     TransactionModule,
     SocketModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService, InvoiceGateway, ClientManagerService],
