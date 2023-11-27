@@ -17,6 +17,7 @@ import { UrlModule } from './modules/url/url.module';
 import { InvoiceGateway } from './modules/ln/ln.gateway';
 import { SocketModule } from './socket/socket.module';
 import { ClientManagerService } from './modules/ln/client-manager.service';
+import { TelegramModule } from './modules/telegram/telegram.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ClientManagerService } from './modules/ln/client-manager.service';
     TelegramModule,
     UrlModule,
     SocketModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService, InvoiceGateway, ClientManagerService],

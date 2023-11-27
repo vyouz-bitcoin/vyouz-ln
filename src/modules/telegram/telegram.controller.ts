@@ -1,3 +1,6 @@
+import { Controller } from '@nestjs/common';
+@Controller('telegram')
+export class TelegramController {}
 import { Controller, Get, Req, Post, Body, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TelegramService } from './telegram.service';
