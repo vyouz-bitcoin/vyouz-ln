@@ -44,6 +44,7 @@
     "cross-env": "^7.0.3",
     "currency-converter-lt": "^2.0.0",
     "decimal.js": "^10.4.3",
+    "firebase": "^10.7.0",
     "helmet": "^7.0.0",
     "joi": "^17.11.0",
     "lnurl-pay": "^3.0.0",
