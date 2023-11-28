@@ -24,7 +24,7 @@ export class TelegramService {
   ) {
     this.bot = new Telegraf(process.env.TELEGRAM_TOKEN);
     this.setupHandlers();
-    this.bot = new TelegramBot(`${process.env.TELEGRAM}`, { polling: true });
+    // this.bot = new TelegramBot(`${process.env.TELEGRAM}`, { polling: true });
   }
   private setupHandlers() {
     // Define your bot commands and event handlers here
