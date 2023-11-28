@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { AbstractDto } from '../../../common/dto/AbstractDto';
 import { UserEntity } from '../user.entity';
+import { accountType } from './../../../common/enums/user';
 
 export class UserDto extends AbstractDto {
   @ApiProperty()
@@ -17,7 +18,8 @@ export class UserDto extends AbstractDto {
   country: string; // will be enum
 
   @ApiProperty()
-  accountType: string; // will be enum
+  accountType: accountType; // will be enum
+
   constructor(user: UserEntity) {
     super(user);
     this.firstName = user.firstName;

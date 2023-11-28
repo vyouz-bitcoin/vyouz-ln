@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
+import { accountType } from './../../../common/enums/user';
 
 @Injectable()
 export class GoService {
@@ -14,11 +15,13 @@ export class GoService {
 
     // this . request made to the backend ..............tobi backend
     return {
-      firstName: 'adigun',
-      lastName: 'john',
+      firstName: 'xijing',
+      lastName: 'rich',
       country: 'nigeria',
       type: 'individual',
-      email: 'segun@gmail.com',
+      email: 'xijingpingn@gmail.com',
+      accountType: accountType.ADVERTISER,
+      telegramLink: '',
     };
   }
 }
