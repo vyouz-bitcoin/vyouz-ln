@@ -1,34 +1,15 @@
 // src/telegram/telegram.service.ts
-
-import { Injectable } from '@nestjs/common';
-import { Telegraf } from 'telegraf';
-
-@Injectable()
-export class TelegramService {
-  private bot;
-
-  constructor() {
-    this.bot = new Telegraf(process.env.TELEGRAM_TOKEN);
-    this.setupHandlers();
-  }
-
-  private setupHandlers() {
-    // Define your bot commands and event handlers here
-    this.bot.start((ctx) => ctx.reply('Hello! Welcome to Vyouz Telegram bot.'));
-  }
-
-  public getBot() {
-    return this.bot;
-  }
-}
-// telegram.service.ts
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { UsersService } from '../users/users.service';
 import { CampaignService } from '../campaign/campaign.service';
 import { UrlService } from '../url/url.service';
 import { shuffle } from 'lodash';
+
+import { Telegraf } from 'telegraf';
+
+// telegram.service.ts
 
 @Injectable()
 export class TelegramService {
@@ -41,7 +22,17 @@ export class TelegramService {
     @Inject(forwardRef(() => CampaignService))
     public readonly campaignService: CampaignService,
   ) {
+    this.bot = new Telegraf(process.env.TELEGRAM_TOKEN);
+    this.setupHandlers();
     this.bot = new TelegramBot(`${process.env.TELEGRAM}`, { polling: true });
+  }
+  private setupHandlers() {
+    // Define your bot commands and event handlers here
+    this.bot.start((ctx) => ctx.reply('Hello! Welcome to Vyouz Telegram bot.'));
+  }
+
+  public getBot() {
+    return this.bot;
   }
 
   async validateTelegramChannel(channelName) {

@@ -1,16 +1,20 @@
-
 // src/telegram/telegram.controller.ts
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Telegraf } from 'telegraf';
 import 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
+import { ApiTags } from '@nestjs/swagger';
+import { TelegramService } from './telegram.service';
+import { Response } from 'express';
+import { ValidateGroupDto } from './dto/validateGroup.dto';
 
 @Controller('telegram')
+@ApiTags('telegram')
 export class TelegramController {
   private bot = new Telegraf(process.env.TELEGRAM_TOKEN);
   private firebaseService;
 
-  constructor() {
+  constructor(private telegramService: TelegramService) {
     this.configureBot();
     this.firebaseService = new FirebaseService();
   }
@@ -38,7 +42,7 @@ export class TelegramController {
       ctx.reply(
         `Checking the database for pictures featuring name: ${ctx.message.text}. Please wait...`,
       );
-      let result = await this.firebaseService.getImageFromFirebase(
+      const result = await this.firebaseService.getImageFromFirebase(
         ctx.message.text,
       );
       ctx.reply(
@@ -47,20 +51,7 @@ export class TelegramController {
     });
 
     this.bot.launch();
-=======
-import { Controller } from '@nestjs/common';
-@Controller('telegram')
-export class TelegramController {}
-import { Controller, Get, Req, Post, Body, Res } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { TelegramService } from './telegram.service';
-import { Request, Response } from 'express';
-import { ValidateGroupDto } from './dto/validateGroup.dto';
-
-@Controller('telegram')
-@ApiTags('telegram')
-export class TelegramController {
-  constructor(private telegramService: TelegramService) {}
+  }
 
   @Post('validate-channel ')
   async createShortUrl(@Body() dto: ValidateGroupDto, @Res() res: Response) {
