@@ -5,7 +5,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { configValidationSchema } from './config.schema';
-
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CampaignModule } from './modules/campaign/campaign.module';
 import { LnModule } from './modules/ln/ln.module';

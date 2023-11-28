@@ -8,8 +8,7 @@ export class TelegramService {
   private bot;
 
   constructor() {
-    this.bot = new Telegraf('6548853489:AAHuLmXt6-J1h2FTbxVtUIvdoCAVb9TuYQo');
-
+    this.bot = new Telegraf(process.env.TELEGRAM_TOKEN);
     this.setupHandlers();
   }
 
