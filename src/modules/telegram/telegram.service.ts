@@ -1,7 +1,7 @@
 // src/telegram/telegram.service.ts
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 // import { Cron } from '@nestjs/schedule';
-import * as TelegramBot from 'node-telegram-bot-api';
+
 import { UsersService } from '../users/users.service';
 import { CampaignService } from '../campaign/campaign.service';
 import { UrlService } from '../url/url.service';
@@ -13,7 +13,7 @@ import { Telegraf } from 'telegraf';
 
 @Injectable()
 export class TelegramService {
-  private bot: TelegramBot;
+  private bot;
 
   constructor(
     public readonly userService: UsersService,
