@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InvoiceDto } from './dto/invoice.dto';
+import { InvoiceDto, TelegramInvoiceDto } from './dto/invoice.dto';
 import axios from 'axios';
 
 import { AmountDto } from './dto/amount.dto';
@@ -16,22 +16,6 @@ export class LnService {
     private readonly clientManager: ClientManagerService,
   ) {}
 
-  async generateTelegramInvoice(invoiceDto: InvoiceDto) {
-    try {
-      //convert the currency passed to USD
-      const ln = new LightningAddress(process.env.LN_ADDRESS);
-      await ln.fetch();
-      // get the LNURL-pay data:
-      const invoice: Invoice = await ln.requestInvoice({
-        satoshi: invoiceDto.sats,
-        comment: 'payment for picture in vyouz',
-      });
-      return { paymentRequest: invoice.paymentRequest };
-    } catch (error) {
-      console.log(error);
-      throw new Error('An error occurred while generating the invoice');
-    }
-  }
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
       //convert the currency passed to USD
@@ -74,6 +58,30 @@ export class LnService {
           clearInterval(intervalId);
         }
       }, 3000);
+    } catch (error) {
+      throw new Error('Error occured while verifying payment');
+    }
+  }
+
+  async generateTelegramInvoice(telegramInvoice: TelegramInvoiceDto) {
+    try {
+      //convert the currency passed to USD
+      const ln = new LightningAddress(telegramInvoice.address);
+      await ln.fetch();
+      // get the LNURL-pay data:
+      const invoice: Invoice = await ln.requestInvoice({
+        satoshi: parseFloat(telegramInvoice.sats),
+        comment: 'payment for picture in vyouz',
+      });
+      return invoice;
+    } catch (error) {
+      throw new Error('An error occurred while generating the invoice');
+    }
+  }
+
+  async subscribeInvoice(invoice: Invoice) {
+    try {
+      return await invoice.isPaid();
     } catch (error) {
       throw new Error('Error occured while verifying payment');
     }

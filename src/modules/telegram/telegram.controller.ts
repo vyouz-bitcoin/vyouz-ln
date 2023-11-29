@@ -8,7 +8,8 @@ import { TelegramService } from './telegram.service';
 import { Response } from 'express';
 import { ValidateGroupDto } from './dto/validateGroup.dto';
 import { LnService } from '../ln/ln.service';
-import { InvoiceDto } from '../ln/dto/invoice.dto';
+import { TelegramInvoiceDto } from '../ln/dto/invoice.dto';
+import { TelegramImage } from './dto/telegram.dto';
 
 @Controller('telegram')
 @ApiTags('telegram')
@@ -16,7 +17,7 @@ export class TelegramController {
   private bot = new Telegraf(process.env.TELEGRAM_TOKEN);
   private firebaseService;
   private result;
-  private selectedImage;
+  private selectedImage: TelegramImage;
 
   constructor(
     private telegramService: TelegramService,
@@ -57,16 +58,32 @@ export class TelegramController {
     });
 
     this.bot.command('PayNow', async (ctx) => {
-      const invoice = await this.lnService.generateTelegramInvoice({
-        amount: this.selectedImage.amount,
-        sats: this.selectedImage.amount,
-        currency: 'NGN',
-        socketClient: '',
-      } as InvoiceDto);
-      ctx.reply(
-        `Kindly pay this invoice using a Lightning Wallet to complete this transaction: ${invoice.paymentRequest}`,
-      );
-      ctx.reply(`Waiting for your payment...`);
+      try {
+        const invoice = await this.lnService.generateTelegramInvoice({
+          amount: this.selectedImage.amount,
+          sats: this.selectedImage.amount,
+          currency: 'NGN',
+          address: this.selectedImage.lightningAddress,
+        } as TelegramInvoiceDto);
+        ctx.reply(
+          `Kindly pay this invoice using a Lightning Wallet to complete this transaction: \n \n ${invoice.paymentRequest}`,
+        );
+        ctx.reply(`Waiting for your payment...`);
+
+        const intervalId = setInterval(async () => {
+          let paid = await this.lnService.subscribeInvoice(invoice);
+          if (paid) {
+            clearInterval(intervalId);
+            ctx.reply(
+              `<h1>Woohoo 🎉 </h2>. Your payment has been confirmed!. Here is your picture: <img src=${this.selectedImage.image} />. \n \n Do you want to buy another image? Click on /start`,
+            );
+          }
+        }, 3000);
+      } catch (error) {
+        ctx.reply(
+          'Sorry, something went horribly wrong 😢. Please click /start to start over',
+        );
+      }
     });
 
     this.bot.on('text', async (ctx) => {
@@ -81,16 +98,22 @@ export class TelegramController {
         ctx.reply(
           `Checking the database for pictures featuring name: ${ctx.message.text}. Please wait...`,
         );
-        this.result = await this.firebaseService.getImageFromFirebase(
-          ctx.message.text.toLowerCase(),
-        );
-        ctx.reply(
-          `We found ${this.result.length} result(s) that match this name. ${
-            this.result.length > 0
-              ? 'Do you want more context? /GetContext'
-              : ''
-          } ${this.result.length == 0 ? 'Please try another name' : ''}`,
-        );
+        try {
+          this.result = await this.firebaseService.getImageFromFirebase(
+            ctx.message.text.toLowerCase(),
+          );
+          ctx.reply(
+            `We found ${this.result.length} result(s) that match this name. ${
+              this.result.length > 0
+                ? 'Do you want more context? /GetContext'
+                : ''
+            } ${this.result.length == 0 ? 'Please try another name' : ''}`,
+          );
+        } catch (error) {
+          ctx.reply(
+            'Sorry, something went horribly wrong 😢. Please click /start to start over',
+          );
+        }
       }
     });
 
