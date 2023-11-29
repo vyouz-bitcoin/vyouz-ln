@@ -69,13 +69,21 @@ export class TelegramController {
           `Kindly pay this invoice using a Lightning Wallet to complete this transaction: \n \n ${invoice.paymentRequest}`,
         );
         ctx.reply(`Waiting for your payment...`);
+        let image = await this.telegramService.convertImageUrlToFile(
+          this.selectedImage.image,
+        );
+
+        console.log(typeof image);
 
         const intervalId = setInterval(async () => {
           let paid = await this.lnService.subscribeInvoice(invoice);
           if (paid) {
             clearInterval(intervalId);
+            ctx.reply(`Woohoo 🎉. Your payment has been confirmed!.`);
+            ctx.reply('Here is the picture you paid for: ');
+            ctx.reply(`${image}`);
             ctx.reply(
-              `<h1>Woohoo 🎉 </h2>. Your payment has been confirmed!. Here is your picture: <img src=${this.selectedImage.image} />. \n \n Do you want to buy another image? Click on /start`,
+              'Do you want to pay for another picture? Kindly click /start',
             );
           }
         }, 3000);
