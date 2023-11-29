@@ -15,6 +15,23 @@ export class LnService {
     private readonly invoiceGateway: InvoiceGateway,
     private readonly clientManager: ClientManagerService,
   ) {}
+
+  async generateTelegramInvoice(invoiceDto: InvoiceDto) {
+    try {
+      //convert the currency passed to USD
+      const ln = new LightningAddress(process.env.LN_ADDRESS);
+      await ln.fetch();
+      // get the LNURL-pay data:
+      const invoice: Invoice = await ln.requestInvoice({
+        satoshi: invoiceDto.sats,
+        comment: 'payment for picture in vyouz',
+      });
+      return { paymentRequest: invoice.paymentRequest };
+    } catch (error) {
+      console.log(error);
+      throw new Error('An error occurred while generating the invoice');
+    }
+  }
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
       //convert the currency passed to USD
