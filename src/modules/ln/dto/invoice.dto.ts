@@ -4,3 +4,10 @@ export class InvoiceDto {
   currency: string;
   socketClient: string;
 }
+
+export class TelegramInvoiceDto {
+  amount: string;
+  sats: string;
+  currency: string;
+  address: string;
+}

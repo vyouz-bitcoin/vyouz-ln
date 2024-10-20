@@ -9,7 +9,6 @@ import {
 } from '@nestjs/platform-express';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { SocketAdapter } from './socket/socket.adapter';
-import * as firebase from 'firebase/app';
 
 async function bootstrap() {
   const logger = new Logger();

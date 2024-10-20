@@ -6,7 +6,6 @@ import { UsersService } from '../users/users.service';
 import { CampaignService } from '../campaign/campaign.service';
 import { UrlService } from '../url/url.service';
 import { shuffle } from 'lodash';
-
 import { Telegraf } from 'telegraf';
 
 // telegram.service.ts
