@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InvoiceDto, TelegramInvoiceDto } from './dto/invoice.dto';
-import axios from 'axios';
-
 import { AmountDto } from './dto/amount.dto';
 import { LightningAddress, Invoice } from '@getalby/lightning-tools';
 import { InvoiceGateway } from './ln.gateway';
 import { ClientManagerService } from './client-manager.service';
+import { fiat } from '@getalby/lightning-tools';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CC = require('currency-converter-lt');
@@ -18,19 +17,12 @@ export class LnService {
 
   async generateInvoice(invoiceDto: InvoiceDto) {
     try {
-      //convert the currency passed to USD
-      const currencyConverter = new CC();
-      const localAmount = await currencyConverter
-        .from(invoiceDto.currency)
-        .to('USD')
-        .amount(invoiceDto.amount)
-        .convert();
-      const BTCVALUE = await axios({
-        method: 'GET',
-        url: `https://blockchain.info/tobtc?currency=USD&value=${localAmount}`,
+      const BTCVALUE = await fiat.getSatoshiValue({
+        amount: invoiceDto.amount,
+        currency: invoiceDto.currency,
       });
 
-      const SATS = BTCVALUE.data * 100000000;
+      const SATS = BTCVALUE;
       const ln = new LightningAddress(process.env.LN_ADDRESS);
       await ln.fetch();
       // get the LNURL-pay data:
@@ -89,19 +81,12 @@ export class LnService {
 
   async getSatsValue(amountDto: AmountDto) {
     try {
-      const currencyConverter = new CC();
-      const localAmount = await currencyConverter
-        .from(amountDto.currency)
-        .to('USD')
-        .amount(parseFloat(amountDto.amount))
-        .convert();
-
-      const BTCVALUE = await axios({
-        method: 'GET',
-        url: `https://blockchain.info/tobtc?currency=USD&value=${localAmount}`,
+      const value = await fiat.getSatoshiValue({
+        currency: amountDto.currency,
+        amount: amountDto.amount,
       });
-
-      return BTCVALUE.data * 100000000;
+      return value;
+      return value;
     } catch {
       throw new Error('An error occurred while converting payment to sats');
     }
@@ -109,12 +94,8 @@ export class LnService {
 
   async getUsdValue(sats: string) {
     try {
-      const BTCVALUE = await axios({
-        method: 'GET',
-        url: `https://blockchain.info/tobtc?currency=USD&value=1`,
-      });
-
-      return 1 / (BTCVALUE.data / parseFloat(sats)) / 100000000;
+      const value = await fiat.getFiatValue({ satoshi: sats, currency: 'USD' });
+      return value;
     } catch (error) {
       throw new Error('An error occurred while converting payment to usd');
     }
