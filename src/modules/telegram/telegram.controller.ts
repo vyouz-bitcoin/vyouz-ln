@@ -50,7 +50,7 @@ export class TelegramController {
         ctx.reply(
           `Title: ${this.result[i].features.join(',')} \n \n Description: ${
             this.result[i].description
-          } \n \n 
+          } \n
           To order this picture, Type ${i + 1}
           `,
         );
@@ -66,25 +66,31 @@ export class TelegramController {
           address: this.selectedImage.lightningAddress,
         } as TelegramInvoiceDto);
         ctx.reply(
-          `Kindly pay this invoice using a Lightning Wallet to complete this transaction: \n \n ${invoice.paymentRequest}`,
+          `Kindly pay this invoice using a Bitcoin/Lightning Wallet to complete this transaction:`,
         );
+        ctx.reply(`${invoice.paymentRequest}`);
         ctx.reply(`Waiting for your payment...`);
-        let image = await this.telegramService.convertImageUrlToFile(
-          this.selectedImage.image,
-        );
-
-        console.log(typeof image);
 
         const intervalId = setInterval(async () => {
-          let paid = await this.lnService.subscribeInvoice(invoice);
+          const paid = await this.lnService.subscribeInvoice(invoice);
           if (paid) {
             clearInterval(intervalId);
             ctx.reply(`Woohoo 🎉. Your payment has been confirmed!.`);
             ctx.reply('Here is the picture you paid for: ');
-            ctx.reply(`${image}`);
-            ctx.reply(
-              'Do you want to pay for another picture? Kindly click /start',
-            );
+            this.bot.telegram
+              .sendPhoto(ctx.chat.id, {
+                source: '../../../public/image.jpg',
+              })
+              .then(() => {
+                ctx.reply(
+                  'Great job. Do you want to buy another picture? Click /start',
+                );
+              })
+              .catch(() => {
+                ctx.reply(
+                  'Sorry, something went horribly wrong 😢. Please click /start to start over',
+                );
+              });
           }
         }, 3000);
       } catch (error) {
@@ -99,7 +105,7 @@ export class TelegramController {
       if (integerRegex.test(ctx.message.text)) {
         this.selectedImage = this.result[parseFloat(ctx.message.text) - 1];
         ctx.reply(
-          `Great, the amount for this picture is ${this.selectedImage.amount} SATs`,
+          `Great, the price for this picture is ${this.selectedImage.amount} SATs`,
         );
         ctx.reply('Are you ready to make payment? Click on /PayNow');
       } else {

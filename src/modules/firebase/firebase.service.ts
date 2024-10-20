@@ -4,7 +4,7 @@ import { db } from 'src/firebase.config';
 
 @Injectable()
 export class FirebaseService {
-  async getImageFromFirebase(name: String) {
+  async getImageFromFirebase(name: string) {
     try {
       const q = query(
         collection(db, 'vyouz'),
@@ -12,7 +12,7 @@ export class FirebaseService {
       );
       const querySnapshot = await getDocs(q);
 
-      let array = [];
+      const array = [];
       querySnapshot.forEach((doc) => {
         array.push(doc.data());
       });

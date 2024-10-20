@@ -7,9 +7,6 @@ import { CampaignService } from '../campaign/campaign.service';
 import { UrlService } from '../url/url.service';
 import { shuffle } from 'lodash';
 import { Telegraf } from 'telegraf';
-const fetch = require('node-fetch');
-const fs = require('fs');
-import { getFileExtension } from 'src/utils/telegram/getUrlExtension.telegram';
 
 // telegram.service.ts
 
@@ -108,21 +105,6 @@ export class TelegramService {
         await this.sendAdToChannel(blogger.telegramChannel, messageContent);
       }),
     );
-  }
-
-  async convertImageUrlToFile(url) {
-    try {
-      let imgExt = getFileExtension(url);
-      const response = await fetch(url);
-      const buffer = await response.buffer();
-      // Save the image data to a file
-      const fileName = 'profileImage.' + imgExt;
-      fs.writeFileSync(fileName, buffer);
-      return fileName;
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
-    }
   }
   // Implement logic to track views or clicks here
 }
