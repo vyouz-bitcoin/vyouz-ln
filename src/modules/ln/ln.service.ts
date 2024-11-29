@@ -7,7 +7,6 @@ import { ClientManagerService } from './client-manager.service';
 import { fiat } from '@getalby/lightning-tools';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const CC = require('currency-converter-lt');
 @Injectable()
 export class LnService {
   constructor(
@@ -85,7 +84,6 @@ export class LnService {
         currency: amountDto.currency,
         amount: amountDto.amount,
       });
-      return value;
       return value;
     } catch {
       throw new Error('An error occurred while converting payment to sats');
