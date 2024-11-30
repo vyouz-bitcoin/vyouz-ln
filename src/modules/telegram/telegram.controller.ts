@@ -2,7 +2,6 @@
 import {
   // Body,
   Controller,
-  // Post, Res
 } from '@nestjs/common';
 import { Telegraf } from 'telegraf';
 import 'firebase/firestore';
@@ -14,11 +13,12 @@ import { ApiTags } from '@nestjs/swagger';
 import { LnService } from '../ln/ln.service';
 import { TelegramInvoiceDto } from '../ln/dto/invoice.dto';
 import { TelegramImage } from './dto/telegram.dto';
+import { QRCodeService } from '../qrcode/qrcode.service';
 
 @Controller('telegram')
 @ApiTags('telegram')
 export class TelegramController {
-  private bot = new Telegraf('8009572204:AAEQd9ft1rwN00x0bACRS4Sjc_whxcUF_jo');
+  private bot = new Telegraf(process.env.TELEGRAM_TOKEN);
   private firebaseService;
   private result;
   private selectedImage: TelegramImage;
@@ -26,6 +26,7 @@ export class TelegramController {
   constructor(
     // private telegramService: TelegramService,
     private readonly lnService: LnService,
+    private readonly qrCodeService: QRCodeService,
   ) {
     this.configureBot();
     this.firebaseService = new FirebaseService();
@@ -33,7 +34,6 @@ export class TelegramController {
 
   private configureBot() {
     this.bot.command('start', (ctx) => {
-      console.log(ctx.from);
       this.bot.telegram.sendMessage(
         ctx.chat.id,
         `Hello ${ctx.from.first_name}, \n \n Welcome to Photos by Vyouz. Here, you can shop for pictures of yourself (or anyone else) snapped at the African Bitcoin Conference and reward the photographer with SATs! 🎉. \n \n Simply click /GetStarted to start!`,
@@ -44,17 +44,17 @@ export class TelegramController {
     this.bot.command('GetStarted', (ctx) => {
       this.bot.telegram.sendMessage(
         ctx.chat.id,
-        'Please input either your name or the name of the individual for whom you wish to purchase a picture',
+        'Please enter either your name or the name of the individual for whom you wish to purchase a picture',
       );
     });
 
-    this.bot.command('GetContext', async (ctx) => {
+    this.bot.command('LearnMore', (ctx) => {
       ctx.reply(`Here are the descriptions of each image result:`);
       for (let i = 0; i < this.result.length; i++) {
         ctx.reply(
           `Title: ${this.result[i].features.join(',')} \n \n Description: ${
             this.result[i].description
-          } \n
+          } \n  \n
           To order this picture, Type ${i + 1}
           `,
         );
@@ -66,14 +66,28 @@ export class TelegramController {
         const invoice = await this.lnService.generateTelegramInvoice({
           amount: this.selectedImage.amount,
           sats: this.selectedImage.amount,
-          currency: 'NGN',
           address: this.selectedImage.lightningAddress,
         } as TelegramInvoiceDto);
         ctx.reply(
-          `Kindly pay this invoice using a Bitcoin/Lightning Wallet to complete this transaction:`,
+          `Kindly scan/pay this invoice using a Bitcoin/Lightning Wallet to complete this transaction:`,
         );
+
+        const filePath = 'qrcode.png';
+        await this.qrCodeService.generateQRCodeFile(
+          invoice.paymentRequest,
+          filePath,
+        );
+
+        const QrcodeURL = await this.firebaseService.uploadImageToFirebase(
+          filePath,
+          this.selectedImage.name,
+        );
+
+        ctx.replyWithPhoto(QrcodeURL);
         ctx.reply(`${invoice.paymentRequest}`);
-        ctx.reply(`Waiting for your payment...`);
+        setTimeout(() => {
+          ctx.reply(`Waiting for your payment...`);
+        }, 2000);
 
         const intervalId = setInterval(async () => {
           const paid = await this.lnService.subscribeInvoice(invoice);
@@ -121,7 +135,7 @@ export class TelegramController {
           ctx.reply(
             `We found ${this.result.length} result(s) that match this name. ${
               this.result.length > 0
-                ? 'Do you want more context? /GetContext'
+                ? 'Do you want more context? /LearnMore'
                 : ''
             } ${this.result.length == 0 ? 'Please try another name' : ''}`,
           );

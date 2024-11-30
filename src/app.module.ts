@@ -10,6 +10,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { InvoiceGateway } from './modules/ln/ln.gateway';
 import { SocketModule } from './socket/socket.module';
 import { ClientManagerService } from './modules/ln/client-manager.service';
+import { QrcodeModule } from './modules/qrcode/qrcode.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ClientManagerService } from './modules/ln/client-manager.service';
     LnModule,
     TelegramModule,
     SocketModule,
+    QrcodeModule,
   ],
   controllers: [AppController],
   providers: [AppService, InvoiceGateway, ClientManagerService],
