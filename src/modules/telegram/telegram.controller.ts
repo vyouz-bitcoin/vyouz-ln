@@ -14,7 +14,7 @@ import { TelegramImage } from './dto/telegram.dto';
 @Controller('telegram')
 @ApiTags('telegram')
 export class TelegramController {
-  private bot = new Telegraf('6548853489:AAH9nbnjKf9CQAEk2FtKNOAzIAt68JEJSVc');
+  private bot = new Telegraf('7389349012:AAEcjLp1hkNeGrGpf_p8Vv9BH8tV90tQMj4');
   private firebaseService;
   private result;
   private selectedImage: TelegramImage;
