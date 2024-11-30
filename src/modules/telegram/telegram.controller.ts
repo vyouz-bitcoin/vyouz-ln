@@ -81,10 +81,8 @@ export class TelegramController {
             clearInterval(intervalId);
             ctx.reply(`Woohoo 🎉. Your payment has been confirmed!.`);
             ctx.reply('Here is the picture you paid for: ');
-            this.bot.telegram
-              .sendPhoto(ctx.chat.id, {
-                source: '../../../public/image.jpg',
-              })
+            ctx
+              .replyWithPhoto(this.selectedImage.image)
               .then(() => {
                 ctx.reply(
                   'Great job. Do you want to buy another picture? Click /start',
