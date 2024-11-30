@@ -6,10 +6,11 @@ import { LnModule } from '../ln/ln.module';
 import { InvoiceGateway } from '../ln/ln.gateway';
 import { ClientManagerService } from '../ln/client-manager.service';
 import { TelegramController } from './telegram.controller';
+import { QRCodeService } from '../qrcode/qrcode.service';
 
 @Module({
   imports: [ScheduleModule.forRoot(), forwardRef(() => LnModule)],
-  providers: [LnService, InvoiceGateway, ClientManagerService],
+  providers: [LnService, InvoiceGateway, ClientManagerService, QRCodeService],
   controllers: [TelegramController],
 })
 export class TelegramModule {}
