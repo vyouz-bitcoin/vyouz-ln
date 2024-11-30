@@ -1,12 +1,16 @@
 // src/telegram/telegram.controller.ts
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import {
+  // Body,
+  Controller,
+  // Post, Res
+} from '@nestjs/common';
 import { Telegraf } from 'telegraf';
 import 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
 import { ApiTags } from '@nestjs/swagger';
-import { TelegramService } from './telegram.service';
-import { Response } from 'express';
-import { ValidateGroupDto } from './dto/validateGroup.dto';
+// import { TelegramService } from './telegram.service';
+// import { Response } from 'express';
+// import { ValidateGroupDto } from './dto/validateGroup.dto';
 import { LnService } from '../ln/ln.service';
 import { TelegramInvoiceDto } from '../ln/dto/invoice.dto';
 import { TelegramImage } from './dto/telegram.dto';
@@ -20,7 +24,7 @@ export class TelegramController {
   private selectedImage: TelegramImage;
 
   constructor(
-    private telegramService: TelegramService,
+    // private telegramService: TelegramService,
     private readonly lnService: LnService,
   ) {
     this.configureBot();
@@ -134,12 +138,12 @@ export class TelegramController {
     this.bot.launch();
   }
 
-  @Post('validate-channel ')
-  async createShortUrl(@Body() dto: ValidateGroupDto, @Res() res: Response) {
-    const result = await this.telegramService.validateTelegramChannel(
-      dto.telegramChannel,
-    );
+  // @Post('validate-channel ')
+  // async createShortUrl(@Body() dto: ValidateGroupDto, @Res() res: Response) {
+  //   const result = await this.telegramService.validateTelegramChannel(
+  //     dto.telegramChannel,
+  //   );
 
-    return res.status(200).json(result);
-  }
+  //   return res.status(200).json(result);
+  // }
 }
