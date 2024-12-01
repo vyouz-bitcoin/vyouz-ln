@@ -5,6 +5,8 @@ import { LightningAddress, Invoice } from '@getalby/lightning-tools';
 import { InvoiceGateway } from './ln.gateway';
 import { ClientManagerService } from './client-manager.service';
 import { fiat } from '@getalby/lightning-tools';
+import { requestInvoice } from 'lnurl-pay';
+import { Satoshis } from 'lnurl-pay/dist/types/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 @Injectable()
@@ -70,9 +72,39 @@ export class LnService {
     }
   }
 
+  async generateLNInvoice(telegramInvoice: TelegramInvoiceDto) {
+    try {
+      const {
+        invoice,
+        params: { image },
+        validatePreimage,
+      } = await requestInvoice({
+        lnUrlOrAddress: telegramInvoice.address,
+        tokens: parseFloat(telegramInvoice.amount) as Satoshis,
+      });
+
+      return { invoice, image, validatePreimage };
+    } catch (error) {}
+  }
+
   async subscribeInvoice(invoice: Invoice) {
     try {
       return await invoice.isPaid();
+    } catch (error) {
+      throw new Error('Error occured while verifying payment');
+    }
+  }
+
+  async subscribeLnInvoice(
+    image: string,
+    validatePreimage: (preimage: string) => boolean,
+  ) {
+    try {
+      const paid = await validatePreimage(
+        'd80ccd7e581d167b0cc4ea3c7f63c241ca39f7bf26decfe965417f48f54dd33b',
+      );
+      console.log(paid);
+      return paid;
     } catch (error) {
       throw new Error('Error occured while verifying payment');
     }
