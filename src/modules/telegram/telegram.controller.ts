@@ -14,6 +14,9 @@ import { LnService } from '../ln/ln.service';
 import { TelegramInvoiceDto } from '../ln/dto/invoice.dto';
 import { TelegramImage } from './dto/telegram.dto';
 import { QRCodeService } from '../qrcode/qrcode.service';
+import * as fs from 'fs';
+import * as path from 'path';
+import axios from 'axios';
 
 @Controller('telegram')
 @ApiTags('telegram')
@@ -37,12 +40,22 @@ export class TelegramController {
     this.bot.command('start', (ctx) => {
       this.bot.telegram.sendMessage(
         ctx.chat.id,
-        `Hello ${ctx.from.first_name} ${ctx.from.last_name}, \n \n Welcome to Photos by Vyouz. Here, you can shop for pictures of yourself (or anyone else) snapped at the African Bitcoin Conference and reward the photographer with SATs! 🎉. \n \n Simply click /GetStarted to start!`,
+        `Hello ${ctx.from.first_name} ${ctx.from.last_name}, \n \n Welcome to Photos by Vyouz. Here, you can shop for pictures of yourself and upload pictures of yourself (or anyone else) snapped at the African Bitcoin Conference and reward the photographer with SATs! 🎉. \n \n Click on /FindPicture to find your pictures \n or \n \n /UploadPicture to upload pictures and earn sats`,
         {},
       );
     });
 
-    this.bot.command('GetStarted', async (ctx) => {
+    this.bot.command('UploadPicture', async (ctx) => {
+      ctx.reply(
+        'Please enter the details of the picture you wish to upload in the format below: \n \n',
+      );
+
+      ctx.reply(
+        'Photo Description: \n \n Photo Featuring: (e.g Jack Dorsey, Elon Musk, Tobi Ojuolape) \n \n Amount you want to sell (in sats): \n \n Lightning Address: \n \n Email address: \n \n ',
+      );
+    });
+
+    this.bot.command('FindPicture', async (ctx) => {
       ctx.reply(
         `Checking the database for pictures featuring name: ${ctx.from.first_name} ${ctx.from.last_name}. Please wait...`,
       );
@@ -181,9 +194,49 @@ export class TelegramController {
       }
     });
 
+    this.bot.on('photo', async (ctx) => {
+      console.log(ctx.message.photo);
+      const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+
+      // Get the file URL from Telegram
+      const fileUrl = await ctx.telegram.getFileLink(fileId);
+      console.log(fileUrl);
+      // Download the file using Axios
+      const response = await axios.get(fileUrl.href, {
+        responseType: 'stream',
+      });
+
+      // Save the file locally
+      const filePath = path.join(__dirname, 'uploads', `${fileId}.jpg`);
+
+      // Create 'uploads' folder if it doesn't exist
+      if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
+        fs.mkdirSync(path.join(__dirname, 'uploads'));
+      }
+
+      // Pipe the file to a local directory
+      const writer = fs.createWriteStream(filePath);
+      response.data.pipe(writer);
+
+      writer.on('finish', async () => {
+        ctx.reply('Photo uploaded successfully! Sending it back to you...');
+        console.log(filePath);
+        await ctx.replyWithPhoto({ source: filePath });
+      });
+
+      ctx.reply('Uploading to the database, please wait');
+    });
+
     this.bot.on('text', async (ctx) => {
       const integerRegex = /^[0-9]+$/;
       const preImageRegex = /\b[a-fA-F0-9]{64}\b/;
+      const imageUploadRegex = /Photo Description:\s*/;
+
+      if (imageUploadRegex.test(ctx.message.text)) {
+        console.log(ctx.message.text.split(':'));
+        ctx.reply('Great, now please upload your picture');
+        return;
+      }
       if (preImageRegex.test(ctx.message.text)) {
         const paid = this.validatePreimage(ctx.message.text);
         if (paid) {
