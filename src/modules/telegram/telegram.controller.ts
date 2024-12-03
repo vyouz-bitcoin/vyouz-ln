@@ -17,6 +17,9 @@ import { QRCodeService } from '../qrcode/qrcode.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
+import { extractValues } from 'src/common/utils/extract';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from 'src/firebase.config';
 
 @Controller('telegram')
 @ApiTags('telegram')
@@ -26,6 +29,7 @@ export class TelegramController {
   private result;
   private selectedImage: TelegramImage;
   private validatePreimage: (preimage: string) => boolean;
+  private uploadImage: TelegramImage;
 
   constructor(
     // private telegramService: TelegramService,
@@ -51,7 +55,7 @@ export class TelegramController {
       );
 
       ctx.reply(
-        'Photo Description: \n \n Photo Featuring: (e.g Jack Dorsey, Elon Musk, Tobi Ojuolape) \n \n Amount you want to sell (in sats): \n \n Lightning Address: \n \n Email address: \n \n ',
+        'Photo Description: \n \n Photo Featuring: (e.g Jack Dorsey, Elon Musk, Tobi Ojuolape) \n \n Amount you want to sell (in sats, enter 0 if free): \n \n Lightning Address: \n \n Email address: \n \n ',
       );
     });
 
@@ -139,7 +143,6 @@ export class TelegramController {
         }
 
         if (domain == 'getalby.com') {
-          console.log(domain);
           const invoice = await this.lnService.generateTelegramInvoice({
             amount: this.selectedImage.amount,
             sats: this.selectedImage.amount,
@@ -171,7 +174,7 @@ export class TelegramController {
             if (paid) {
               clearInterval(intervalId);
               ctx.reply(`Woohoo 🎉. Your payment has been confirmed!.`);
-              ctx.reply('Here is the picture you paid for: ');
+              ctx.reply('Here is the picture you paid for');
               ctx
                 .replyWithPhoto(this.selectedImage.image)
                 .then(() => {
@@ -195,12 +198,11 @@ export class TelegramController {
     });
 
     this.bot.on('photo', async (ctx) => {
-      console.log(ctx.message.photo);
+      ctx.reply('Uploading to the database, please wait...');
       const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
 
       // Get the file URL from Telegram
       const fileUrl = await ctx.telegram.getFileLink(fileId);
-      console.log(fileUrl);
       // Download the file using Axios
       const response = await axios.get(fileUrl.href, {
         responseType: 'stream',
@@ -219,12 +221,17 @@ export class TelegramController {
       response.data.pipe(writer);
 
       writer.on('finish', async () => {
-        ctx.reply('Photo uploaded successfully! Sending it back to you...');
-        console.log(filePath);
-        await ctx.replyWithPhoto({ source: filePath });
-      });
+        const imageUrl = await this.firebaseService.uploadImageToFirebase(
+          filePath,
+          this.uploadImage.name + '_' + this.uploadImage.description,
+        );
+        this.uploadImage.image = imageUrl;
 
-      ctx.reply('Uploading to the database, please wait');
+        await addDoc(collection(db, 'vyouz'), this.uploadImage);
+        ctx.reply(
+          'Photo uploaded successfully! Thank you for using Vyouz. You can restart the process by clicking /start',
+        );
+      });
     });
 
     this.bot.on('text', async (ctx) => {
@@ -233,7 +240,17 @@ export class TelegramController {
       const imageUploadRegex = /Photo Description:\s*/;
 
       if (imageUploadRegex.test(ctx.message.text)) {
-        console.log(ctx.message.text.split(':'));
+        const uploadedImage = extractValues(ctx.message.text);
+        this.uploadImage = {
+          name: `${ctx.from.first_name} ${ctx.from.last_name}`,
+          amount: uploadedImage['Amount'],
+          email: uploadedImage['Email address'],
+          lightningAddress: uploadedImage['Lightning Address'],
+          description: uploadedImage['Photo Description'],
+          features: uploadedImage['Photo Featuring'].toLowerCase().split(','),
+          image: null,
+        };
+        console.log(this.uploadImage);
         ctx.reply('Great, now please upload your picture');
         return;
       }
@@ -261,6 +278,19 @@ export class TelegramController {
       }
       if (integerRegex.test(ctx.message.text)) {
         this.selectedImage = this.result[parseFloat(ctx.message.text) - 1];
+
+        if (this.selectedImage.amount === '0') {
+          ctx.reply(
+            "Woohoo 🎉. Your picture was uploaded for free so you don't need to pay",
+          );
+          ctx.reply('Here is your picture');
+          ctx.replyWithPhoto(this.selectedImage.image).then(() => {
+            ctx.reply(
+              'Great job. Do you want to buy another picture? Click /start',
+            );
+          });
+          return;
+        }
         ctx.reply(
           `Great, the price for this picture is ${this.selectedImage.amount} SATs`,
         );
