@@ -4,4 +4,6 @@ export class TelegramImage {
   name: string;
   lightningAddress: string;
   image: string;
+  description: string;
+  features: Array<string>;
 }
